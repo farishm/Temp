@@ -1,0 +1,148 @@
+﻿@model IEnumerable<TT_Users.Models.User>
+@{
+    ViewBag.Title = "Index";
+}
+
+<div style="width:900px">
+    <div class="panel-heading">
+        <div class="row">
+            <div class="col col-xs-7">
+                <label class="control-label">Members List</label>
+            </div>
+
+            
+            <div class="col col-xs-5 text-right">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick="initForm();">Add New</button>
+                &nbsp;
+                <button type="button" class="btn btn-danger" onclick="deleteSelected();">Delete Selected</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="~/Scripts/TT_User.js"></script>
+<div id=" grid">
+    @{
+        var statusList = Model.Select(app => app.StatusList);
+        var statusL = from name in statusList.First()
+                      select new SelectListItem
+                      {
+                          Value = name,
+                          Text = name
+                      };
+
+        var rolesList = Model.Select(app => app.RolesList);
+        var rolesL = from name in rolesList.First()
+                     select new SelectListItem
+                     {
+                         Value = name,
+                         Text = name
+                     };
+
+        var totalRows = Model.Count();
+
+        var gridview = new WebGrid(source: Model, rowsPerPage: 20);
+    }
+
+    @gridview.GetHtml(tableStyle: "webGrid", headerStyle: "header", alternatingRowStyle: "altColor",
+columns:
+        gridview.Columns(
+
+            gridview.Column(header: "", 
+                        format:
+                        @<text><input id="chkId" name="chkId" type="checkbox" value="@item.Id" /></text>),
+            gridview.Column("Id", "ID"),
+            gridview.Column("Name",
+                format:
+                @<text>
+                    <span id="name" class="read">@item.Name</span>
+                    @Html.TextBox("Name", (string)item.Name, new { @class = "edit", @maxlength = "50" })
+                </text>, style: "nameStyle"),
+            gridview.Column("Role",
+                format:
+                @<text>
+                    <span id="role" class="read">@item.Role</span>
+                    @Html.DropDownList("Role", rolesL, new { @class = "edit" })
+                </text>),
+            gridview.Column("UpdatedAt", style: "updateAtStyle",
+            format:
+            @<text>
+                <span id="updatedAt" class="read">@item.UpdatedAt.ToString("dd/MM/yyyy hh:mm")</span>
+                @Html.TextBox("UpdatedAt", (string)item.UpdatedAt.ToString("dd/MM/yyyy hh:mm"), new { @class = "edit", @maxlength = "50", @readonly = "readonly" })
+            </text>),
+            gridview.Column("Status",
+                format:
+                @<text>
+                    <span id="status" class="read">@item.Status</span>
+                    @Html.DropDownList("Status", statusL, new { @class = "edit" })
+                </text>),
+            gridview.Column("Actions", style: "actionStyle", canSort: false,
+                format:
+                @<text>
+                    <button class="btn btn-info btn-xs read" data-toggle="tooltip" data-placement="top" title="Further Details- Mobile: 07856457889" id="@item.Id"><span class="glyphicon glyphicon-info-sign"></span></button>
+                    <button class="btn btn-primary btn-xs edit-case read" data-toggle="tooltip" data-placement="top" title="Edit Inline" id="@item.Id"><span class="glyphicon glyphicon-pencil"></span></button>
+                    <button class="btn btn-primary btn-xs read" data-toggle="tooltip" data-placement="top" title="Edit Modal" onclick="return Edit(@item.Id)"><span class="glyphicon glyphicon-pencil"></span></button>
+                    <button class="btn btn-danger btn-xs delete-case read" data-toggle="tooltip" data-placement="top" title="Delete" id="@item.Id"><span class="glyphicon glyphicon-trash"></span></button>
+                    <button class="btn btn-primary btn-xs update-case edit" id="@item.Id">Update</button>
+                    <button class="btn btn-xs cancel-case edit" id="@item.Id">Cancel</button>
+                </text>)
+        ))
+</div>
+
+<div style="width:900px">
+    <div class="panel-footer">
+        <div class="row">
+            <div class="col col-xs-2 text-left">
+                <input type="checkbox" id="checkAll"  onchange="checkAll();"> Check All
+            </div>
+            <div class="col col-xs-10 text-right">
+                Total Number of Users: @totalRows
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<button type="button" class="close" data-dissmiss="modal"><span aria-hidden="true">&times;</span></button>*@
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Add New User</h4>
+            </div>
+            <div class="modal-body">
+                <form>                    
+                    <div class="form-group">
+                        <label for="txtName">Name</label>
+                        <input type="text" class="form-control" id="txtName" placeholder="Name" maxlength="50" />
+                    </div>
+                    <div class="form-group">
+                        <label for="selRole">Role</label>
+                        <select id="selRole" class="form-control">
+                            <option>User</option>
+                            <option>Manager</option>
+                            <option>Administrator</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="selStatus">Status</label>
+                        <select id="selStatus" class="form-control">
+                            <option>New</option>
+                            <option>Active</option>
+                            <option>Disabled</option>
+                        </select>
+                    </div>
+                    <input type="hidden" id="userId" />
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnAdd" onclick="return Add();">Add</button>
+                <button type="button" class="btn btn-primary" id="btnUpdate" style="display:none;" onclick="Update();">Update</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,1 +1,2 @@
 http://openlightgroup.com/Blog/TabId/58/PostId/189/UserRolesAdministration.aspx
+http://www.dotnetqueries.com/Article/56/show-validation-messages-in-bootstrap-modal-popup
